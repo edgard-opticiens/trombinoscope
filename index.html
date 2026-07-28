@@ -150,6 +150,7 @@
 <script>
   // A remplacer par l'URL de production du workflow n8n "Trombinoscope - Webhook"
   const WEBHOOK_URL = "https://edgard-opticiens.app.n8n.cloud/webhook/trombinoscope";
+  const API_KEY = "Edgard37*";
 
   const selectEl = document.getElementById("store-select");
   const statusEl = document.getElementById("status");
@@ -241,7 +242,9 @@
     statusEl.textContent = "Chargement...";
 
     try {
-      const res = await fetch(WEBHOOK_URL + "?magasin=" + encodeURIComponent(magasin));
+      const res = await fetch(WEBHOOK_URL + "?magasin=" + encodeURIComponent(magasin), {
+        headers: { "x-api-key": API_KEY }
+      });
       if (!res.ok) throw new Error("reponse " + res.status);
       const data = await res.json();
       statusEl.textContent = "";
