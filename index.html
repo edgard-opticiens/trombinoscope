@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trombinoscope - Edgard</title>
+<style>
+  :root {
+    --brand: #4a1621;
+    --brand-light: #6b2432;
+    --bg: #f4f2ef;
+    --card-bg: #ffffff;
+    --border: #e2ddd7;
+    --text: #2c2c2a;
+    --text-secondary: #6a6a66;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Arial, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    background: var(--brand);
+    color: #fff;
+    padding: 18px 32px;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 20px 64px;
+  }
+  .select-row {
+    margin-bottom: 32px;
+  }
+  .select-row label {
+    display: block;
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  select {
+    width: 100%;
+    max-width: 420px;
+    padding: 10px 12px;
+    font-size: 15px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--text);
+  }
+  #status {
+    font-size: 14px;
+    color: var(--text-secondary);
+    padding: 24px 0;
+    text-align: center;
+  }
+  #status.error { color: #a32d2d; }
+  .level {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 28px;
+    padding: 10px 0;
+  }
+  .connector {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    margin: 0 auto;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 120px;
+    text-align: center;
+  }
+  .avatar {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+  }
+  .avatar.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--brand-light);
+    color: #fff;
+    font-weight: 600;
+    font-size: 18px;
+  }
+  .name {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+</style>
+</head>
+<body>
+
+<header>EDGARD &middot; Trombinoscope</header>
+
+<main>
+  <div class="select-row">
+    <label for="store-select">Selectionnez le nom d'un magasin dans la liste deroulante pour afficher le trombinoscope</label>
+    <select id="store-select">
+      <option value="">-- Choisir un magasin --</option>
+      <option value="ANGO">ANGO</option>
+      <option value="BIARRO">BIARRO</option>
+      <option value="BORDO">BORDO</option>
+      <option value="CAENPO">CAENPO</option>
+      <option value="CHATO">CHATO</option>
+      <option value="CHEMILLO">CHEMILLO</option>
+      <option value="CHOLO">CHOLO</option>
+      <option value="DUNES">DUNES</option>
+      <option value="ECUME">ECUME</option>
+      <option value="FORMIO">FORMIO</option>
+      <option value="GIRO">GIRO</option>
+      <option value="HAVRO">HAVRO</option>
+      <option value="JISAM">JISAM</option>
+      <option value="LYONO">LYONO</option>
+      <option value="MANSO">MANSO</option>
+      <option value="MARAIS">MARAIS</option>
+      <option value="MARSEILLO">MARSEILLO</option>
+      <option value="MUDO">MUDO</option>
+      <option value="NANCEO">NANCEO</option>
+      <option value="NANTO">NANTO</option>
+      <option value="NICEO">NICEO</option>
+      <option value="NIORTO">NIORTO</option>
+      <option value="ORLO">ORLO</option>
+      <option value="REIMO">REIMO</option>
+      <option value="STRABO">STRABO</option>
+      <option value="TURO">TURO</option>
+    </select>
+  </div>
+
+  <div id="status"></div>
+  <div id="tree"></div>
+</main>
+
+<script>
+  // A remplacer par l'URL de production du workflow n8n "Trombinoscope - Webhook"
+  const WEBHOOK_URL = "https://edgard-opticiens.app.n8n.cloud/webhook/trombinoscope";
+
+  const selectEl = document.getElementById("store-select");
+  const statusEl = document.getElementById("status");
+  const treeEl = document.getElementById("tree");
+
+  function initials(nom, prenom) {
+    return ((prenom || "")[0] || "") .toUpperCase() + ((nom || "")[0] || "").toUpperCase();
+  }
+
+  function renderCard(p) {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    let img;
+    if (p.photoBase64) {
+      img = document.createElement("img");
+      img.className = "avatar";
+      img.src = "data:image/jpeg;base64," + p.photoBase64;
+      img.alt = (p.prenom || "") + " " + (p.nom || "");
+    } else {
+      img = document.createElement("div");
+      img.className = "avatar placeholder";
+      img.textContent = initials(p.nom, p.prenom);
+    }
+    card.appendChild(img);
+
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = (p.prenom || "") + " " + (p.nom || "");
+    card.appendChild(name);
+
+    return card;
+  }
+
+  function buildLevels(employees) {
+    const byManager = {};
+    employees.forEach(function (p) {
+      const key = p.managerId === null || p.managerId === undefined ? "root" : p.managerId;
+      if (!byManager[key]) byManager[key] = [];
+      byManager[key].push(p);
+    });
+    Object.keys(byManager).forEach(function (k) {
+      byManager[k].sort(function (a, b) { return (a.ordre || 0) - (b.ordre || 0); });
+    });
+
+    const levels = [];
+    let current = byManager["root"] || [];
+    while (current.length) {
+      levels.push(current);
+      let next = [];
+      current.forEach(function (p) {
+        if (byManager[p.id]) next = next.concat(byManager[p.id]);
+      });
+      current = next;
+    }
+    return levels;
+  }
+
+  function renderTree(data) {
+    treeEl.innerHTML = "";
+    const levels = buildLevels(data.employees || []);
+
+    if (!levels.length) {
+      statusEl.textContent = "Aucun collaborateur trouve pour ce magasin.";
+      return;
+    }
+
+    levels.forEach(function (level, i) {
+      const levelEl = document.createElement("div");
+      levelEl.className = "level";
+      level.forEach(function (p) { levelEl.appendChild(renderCard(p)); });
+      treeEl.appendChild(levelEl);
+
+      if (i < levels.length - 1) {
+        const connector = document.createElement("div");
+        connector.className = "connector";
+        treeEl.appendChild(connector);
+      }
+    });
+  }
+
+  async function loadStore(magasin) {
+    treeEl.innerHTML = "";
+    statusEl.className = "";
+    if (!magasin) {
+      statusEl.textContent = "";
+      return;
+    }
+    statusEl.textContent = "Chargement...";
+
+    try {
+      const res = await fetch(WEBHOOK_URL + "?magasin=" + encodeURIComponent(magasin));
+      if (!res.ok) throw new Error("reponse " + res.status);
+      const data = await res.json();
+      statusEl.textContent = "";
+      renderTree(data);
+    } catch (err) {
+      statusEl.className = "error";
+      statusEl.textContent = "Impossible de charger le trombinoscope pour ce magasin. Reessayez plus tard.";
+    }
+  }
+
+  selectEl.addEventListener("change", function (e) { loadStore(e.target.value); });
+</script>
+
+</body>
+</html>
