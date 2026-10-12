@@ -62,10 +62,10 @@
     padding:2px 8px;border-radius:999px}
   .coord{display:flex;flex-direction:column;gap:6px;margin-top:2px;padding-top:12px;
     border-top:1px solid var(--line)}
-  .coord a{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--ink);
-    text-decoration:none;word-break:break-all}
+  .coord a{display:flex;align-items:flex-start;gap:8px;font-size:.82rem;color:var(--ink);
+    text-decoration:none;overflow-wrap:anywhere;word-break:normal;line-height:1.4}
   .coord a:hover{color:var(--gold)}
-  .coord svg{flex:none;width:15px;height:15px;color:var(--muted)}
+  .coord svg{flex:none;width:15px;height:15px;margin-top:2px;color:var(--muted);stroke:currentColor}
 
   .presence{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:.7rem;
     font-weight:600;padding:2px 9px;border-radius:999px}
@@ -121,12 +121,12 @@
       ? '<img src="' + p.photo + '" alt="">'
       : ini;
     var mobile = p.portable
-      ? '<a href="tel:' + p.portable.replace(/\s/g,'') + '"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">' + ICON_PORTABLE + '</svg>' + p.portable + '</a>'
+      ? '<a href="tel:' + p.portable.replace(/\s/g,'') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">' + ICON_PORTABLE + '</svg>' + p.portable + '</a>'
       : '';
     var fixe = p.fixe
-      ? '<a href="tel:' + p.fixe.replace(/\s/g,'') + '"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">' + ICON_FIXE + '</svg>' + p.fixe + '</a>'
+      ? '<a href="tel:' + p.fixe.replace(/\s/g,'') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">' + ICON_FIXE + '</svg>' + p.fixe + '</a>'
       : '';
-    var mail = '<a href="mailto:' + p.mail + '"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">' + MAIL + '</svg>' + p.mail + '</a>';
+    var mail = '<a href="mailto:' + p.mail + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">' + MAIL + '</svg>' + p.mail + '</a>';
     var presence = p.absence
       ? '<span class="presence absent"><i></i>En congés — retour le ' + p.absence + '</span>'
       : '<span class="presence ici"><i></i>Présent·e aujourd\'hui</span>';
@@ -152,7 +152,7 @@
     var div = document.createElement('div');
     div.className = 'service';
     var mailBadge = s.mail
-      ? '<a class="service-mail" href="mailto:' + s.mail + '"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">' + MAIL_SOLID + '</svg>' + s.mail + '</a>'
+      ? '<a class="service-mail" href="mailto:' + s.mail + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">' + MAIL_SOLID + '</svg>' + s.mail + '</a>'
       : '';
     div.innerHTML =
       '<div class="service-head"><h2 class="service-nom"></h2>' + mailBadge + '</div>' +
