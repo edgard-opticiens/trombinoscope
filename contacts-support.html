@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#152238">
+<title>Contacts — Fonctions support</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F1E6; --ink:#1C1710; --muted:#78705F; --line:#E9E0CE; --surface:#FFFFFF;
+    --gold:#A97A2E; --gold-light:#D9AE6E; --spark:#D6602F;
+    --gold-soft:rgba(169,122,46,.11); --gold-line:rgba(169,122,46,.3);
+    --navy:#152238; --navy-2:#233A5C; --navy-fg:#F5EFDF;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:"Inter",system-ui,sans-serif;color:var(--ink);background:var(--bg);
+    min-height:100vh;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1020px;margin:0 auto;padding:52px 24px 80px}
+
+  .dots{display:flex;gap:7px;margin-bottom:22px}
+  .dots i{width:9px;height:9px;border-radius:50%;display:block;background:var(--gold)}
+  .dots i:nth-child(2){opacity:.55}
+  .dots i:nth-child(3){background:transparent;border:1.6px solid var(--gold)}
+  .eyebrow{font-size:.74rem;font-weight:600;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 10px}
+  h1{font-family:"Fraunces";font-weight:600;font-size:clamp(1.9rem,4.6vw,2.9rem);line-height:1.06;
+    letter-spacing:-.015em;margin:0 0 14px;font-variation-settings:"opsz" 120}
+  .role{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:1rem;margin:0 0 40px}
+  .role::before{content:"";width:34px;height:1.5px;background:var(--gold)}
+
+  .etat{text-align:center;color:var(--muted);font-size:.95rem;padding:80px 10px}
+
+  .service{margin-top:40px}
+  .service-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+    gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .service-nom{font-family:"Fraunces";font-weight:600;font-size:1.25rem;letter-spacing:-.01em;
+    font-variation-settings:"opsz" 60;margin:0}
+  .service-mail{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;
+    color:var(--gold);background:var(--gold-soft);border:1px solid var(--gold-line);
+    padding:6px 12px;border-radius:999px;text-decoration:none}
+  .service-mail:hover{background:var(--gold-line)}
+  .service-mail svg{width:14px;height:14px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+  .carte{background:var(--surface);border:1px solid var(--line);border-radius:18px;
+    padding:20px;display:flex;flex-direction:column;gap:12px;
+    box-shadow:0 14px 30px -26px rgba(28,23,16,.25)}
+  .avatar{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-family:"Fraunces";font-weight:600;font-size:1.1rem;
+    color:#fff;flex:none;overflow:hidden}
+  .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+  .id-ligne{display:flex;align-items:center;gap:14px}
+  .id-texte{min-width:0}
+  .nom{font-weight:600;font-size:.98rem;margin:0;word-break:break-word}
+  .fonction{font-size:.78rem;color:var(--muted);margin:2px 0 0}
+  .badge-resp{display:inline-block;margin-top:5px;font-size:.68rem;font-weight:700;
+    letter-spacing:.04em;text-transform:uppercase;color:var(--navy);background:var(--gold-light);
+    padding:2px 8px;border-radius:999px}
+  .coord{display:flex;flex-direction:column;gap:6px;margin-top:2px;padding-top:12px;
+    border-top:1px solid var(--line)}
+  .coord a{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--ink);
+    text-decoration:none;word-break:break-all}
+  .coord a:hover{color:var(--gold)}
+  .coord svg{flex:none;width:15px;height:15px;color:var(--muted)}
+
+  .presence{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:.7rem;
+    font-weight:600;padding:2px 9px;border-radius:999px}
+  .presence.ici{color:#1A6B3C;background:rgba(26,107,60,.12)}
+  .presence.absent{color:#A15A10;background:rgba(214,96,47,.13)}
+  .presence i{width:6px;height:6px;border-radius:50%;background:currentColor;display:block}
+
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    font-size:.78rem;color:var(--muted);line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="dots"><i></i><i></i><i></i></div>
+  <div class="eyebrow">Groupe Edgard</div>
+  <h1>Contacts — Fonctions support</h1>
+  <p class="role">Les équipes du siège, leurs coordonnées directes et les adresses de service</p>
+
+  <div id="contenu">
+    <div class="etat">Chargement…</div>
+  </div>
+
+  <footer>
+    Portail interne — Groupe Edgard. Pour toute mise à jour de cette page, contactez le service RH.
+  </footer>
+</div>
+
+<script>
+(function(){
+  var URL_API = 'https://edgard-opticiens.app.n8n.cloud/webhook/contacts-support';
+  var conteneur = document.getElementById('contenu');
+
+  var ICON_PORTABLE='<rect x="7" y="2" width="10" height="20" rx="2" fill="none" stroke-width="1.8"/><path d="M11 18h2" stroke-width="1.8" stroke-linecap="round"/>';
+  var ICON_FIXE='<path d="M4 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 4 6a2 2 0 0 1 2-2" fill="none" stroke-width="1.8"/>';
+  var MAIL='<path d="M4 5h16v14H4z" fill="none" stroke-width="1.8"/><path d="M4 6l8 7 8-7" stroke-width="1.8"/>';
+  var MAIL_SOLID='<path d="M4 5h16v14H4z" stroke-width="1.6"/><path d="M4 6l8 7 8-7" stroke-width="1.6"/>';
+
+  var AVATAR_COLORS = ['#A97A2E','#233A5C','#D6602F','#78705F','#0A6E41'];
+  function couleurAvatar(cle){
+    var h = 0;
+    for (var i=0;i<cle.length;i++) h = (h*31 + cle.charCodeAt(i)) % AVATAR_COLORS.length;
+    return AVATAR_COLORS[h];
+  }
+  function initiales(prenom, nom){
+    return (prenom[0]||'') + (nom[0]||'');
+  }
+
+  function personne(p){
+    var ini = initiales(p.prenom, p.nom);
+    var couleur = couleurAvatar(p.nom + p.prenom);
+    var avatar = p.photo
+      ? '<img src="' + p.photo + '" alt="">'
+      : ini;
+    var mobile = p.portable
+      ? '<a href="tel:' + p.portable.replace(/\s/g,'') + '"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">' + ICON_PORTABLE + '</svg>' + p.portable + '</a>'
+      : '';
+    var fixe = p.fixe
+      ? '<a href="tel:' + p.fixe.replace(/\s/g,'') + '"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">' + ICON_FIXE + '</svg>' + p.fixe + '</a>'
+      : '';
+    var mail = '<a href="mailto:' + p.mail + '"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">' + MAIL + '</svg>' + p.mail + '</a>';
+    var presence = p.absence
+      ? '<span class="presence absent"><i></i>En congés — retour le ' + p.absence + '</span>'
+      : '<span class="presence ici"><i></i>Présent·e aujourd\'hui</span>';
+    var div = document.createElement('div');
+    div.className = 'carte';
+    div.innerHTML =
+      '<div class="id-ligne">' +
+        '<span class="avatar" style="background:' + couleur + '">' + avatar + '</span>' +
+        '<div class="id-texte">' +
+          '<p class="nom"></p>' +
+          (p.fonction ? '<p class="fonction"></p>' : '') +
+          (p.resp ? '<span class="badge-resp">Responsable</span>' : '') +
+          presence +
+        '</div>' +
+      '</div>' +
+      '<div class="coord">' + mobile + fixe + mail + '</div>';
+    div.querySelector('.nom').textContent = p.prenom + ' ' + p.nom;
+    if (p.fonction) div.querySelector('.fonction').textContent = p.fonction;
+    return div;
+  }
+
+  function service(s){
+    var div = document.createElement('div');
+    div.className = 'service';
+    var mailBadge = s.mail
+      ? '<a class="service-mail" href="mailto:' + s.mail + '"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">' + MAIL_SOLID + '</svg>' + s.mail + '</a>'
+      : '';
+    div.innerHTML =
+      '<div class="service-head"><h2 class="service-nom"></h2>' + mailBadge + '</div>' +
+      '<div class="grid"></div>';
+    div.querySelector('.service-nom').textContent = s.nom;
+    var grid = div.querySelector('.grid');
+    (s.gens || []).forEach(function(p){ grid.appendChild(personne(p)); });
+    return div;
+  }
+
+  function afficher(services){
+    if (!services || !services.length){
+      conteneur.innerHTML = '<div class="etat">Aucun contact disponible pour le moment.</div>';
+      return;
+    }
+    conteneur.innerHTML = '';
+    services.forEach(function(s){ conteneur.appendChild(service(s)); });
+  }
+
+  fetch(URL_API, { method: 'GET', headers: { 'x-api-key': 'Edgard37*' } })
+    .then(function(r){ if(!r.ok) throw new Error('reponse ' + r.status); return r.json(); })
+    .then(function(data){ afficher(data && data.services); })
+    .catch(function(err){
+      conteneur.innerHTML = '<div class="etat">Impossible de charger les contacts pour le moment. Réessayez un peu plus tard.</div>';
+      console.error('contacts-support:', err);
+    });
+})();
+</script>
+</body>
+</html>
