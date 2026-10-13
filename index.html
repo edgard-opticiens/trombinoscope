@@ -103,6 +103,37 @@
     font-weight: 600;
     line-height: 1.3;
   }
+  #gate {
+    max-width: 480px;
+    margin: 48px auto 0;
+    padding: 28px 26px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    text-align: center;
+  }
+  #gate p {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.5;
+    margin: 0 0 18px;
+  }
+  #gate .liens {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  #gate a {
+    display: inline-block;
+    padding: 10px 16px;
+    background: var(--brand);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  #gate a:hover { background: var(--brand-light); }
 </style>
 </head>
 <body>
@@ -110,52 +141,85 @@
 <header>EDGARD &middot; Trombinoscope</header>
 
 <main>
-  <div class="select-row">
-    <label for="store-select">Selectionnez le nom d'un magasin dans la liste deroulante pour afficher le trombinoscope</label>
-    <select id="store-select">
-      <option value="">-- Choisir un magasin --</option>
-      <option value="ANGO">ANGO</option>
-      <option value="BIARRO">BIARRO</option>
-      <option value="BORDO">BORDO</option>
-      <option value="CAENPO">CAENPO</option>
-      <option value="CHATO">CHATO</option>
-      <option value="CHEMILLO">CHEMILLO</option>
-      <option value="CHOLO">CHOLO</option>
-      <option value="DUNES">DUNES</option>
-      <option value="ECUME">ECUME</option>
-      <option value="FORMIO">FORMIO</option>
-      <option value="GIRO">GIRO</option>
-      <option value="HAVRO">HAVRO</option>
-      <option value="JISAM">JISAM</option>
-      <option value="LYONO">LYONO</option>
-      <option value="MANSO">MANSO</option>
-      <option value="MARAIS">MARAIS</option>
-      <option value="MARSEILLO">MARSEILLO</option>
-      <option value="MUDO">MUDO</option>
-      <option value="NANCEO">NANCEO</option>
-      <option value="NANTO">NANTO</option>
-      <option value="NICEO">NICEO</option>
-      <option value="NIORTO">NIORTO</option>
-      <option value="ORLO">ORLO</option>
-      <option value="REIMO">REIMO</option>
-      <option value="STRABO">STRABO</option>
-      <option value="TURO">TURO</option>
-      <option value="EDGARD DEVELOPPEMENT">EDGARD DEVELOPPEMENT (Siege)</option>
-    </select>
+  <div id="gate" hidden>
+    <p>Vous devez d'abord vous connecter depuis le portail RH (ou un autre outil du groupe, comme Soldes CP) pour accéder au trombinoscope. Une fois connecté, revenez sur cette page.</p>
+    <div class="liens">
+      <a href="https://edgard-opticiens.github.io/portail-rh-edgard/">Portail RH Edgard</a>
+      <a href="https://edgard-opticiens.github.io/portail-rh-gdo/">Portail RH GdO</a>
+    </div>
   </div>
 
-  <div id="status"></div>
-  <div id="tree"></div>
+  <div id="appContent" hidden>
+    <div class="select-row">
+      <label for="store-select">Selectionnez le nom d'un magasin dans la liste deroulante pour afficher le trombinoscope</label>
+      <select id="store-select">
+        <option value="">-- Choisir un magasin --</option>
+        <option value="ANGO">ANGO</option>
+        <option value="BIARRO">BIARRO</option>
+        <option value="BORDO">BORDO</option>
+        <option value="CAENPO">CAENPO</option>
+        <option value="CHATO">CHATO</option>
+        <option value="CHEMILLO">CHEMILLO</option>
+        <option value="CHOLO">CHOLO</option>
+        <option value="DUNES">DUNES</option>
+        <option value="ECUME">ECUME</option>
+        <option value="FORMIO">FORMIO</option>
+        <option value="GIRO">GIRO</option>
+        <option value="HAVRO">HAVRO</option>
+        <option value="JISAM">JISAM</option>
+        <option value="LYONO">LYONO</option>
+        <option value="MANSO">MANSO</option>
+        <option value="MARAIS">MARAIS</option>
+        <option value="MARSEILLO">MARSEILLO</option>
+        <option value="MUDO">MUDO</option>
+        <option value="NANCEO">NANCEO</option>
+        <option value="NANTO">NANTO</option>
+        <option value="NICEO">NICEO</option>
+        <option value="NIORTO">NIORTO</option>
+        <option value="ORLO">ORLO</option>
+        <option value="REIMO">REIMO</option>
+        <option value="STRABO">STRABO</option>
+        <option value="TURO">TURO</option>
+        <option value="EDGARD DEVELOPPEMENT">EDGARD DEVELOPPEMENT (Siege)</option>
+      </select>
+    </div>
+
+    <div id="status"></div>
+    <div id="tree"></div>
+  </div>
 </main>
 
 <script>
-  // A remplacer par l'URL de production du workflow n8n "Trombinoscope - Webhook"
-  const WEBHOOK_URL = "https://edgard-opticiens.app.n8n.cloud/webhook/trombinoscope";
-  const API_KEY = "Edgard37*";
+  /* ===== Connexion sécurisée =====
+     Pas de code sur cette page : le trombinoscope lit le jeton de session deja ouvert
+     ailleurs sur le site (portail RH, Soldes CP, etc. - meme navigateur, meme site),
+     et interroge la passerelle securisee avec ce jeton. */
+  const SECURE_READ_URL = "https://edgard-opticiens.app.n8n.cloud/webhook/secure-read";
+  const AUTH_KEY = "edgard_auth_v2";
 
+  function authGet() {
+    try {
+      const o = JSON.parse(localStorage.getItem(AUTH_KEY) || "null");
+      if (!o || !o.token) return null;
+      if (Number(o.expire) <= Date.now()) return null;
+      return o;
+    } catch (e) { return null; }
+  }
+
+  const gateEl = document.getElementById("gate");
+  const appEl = document.getElementById("appContent");
   const selectEl = document.getElementById("store-select");
   const statusEl = document.getElementById("status");
   const treeEl = document.getElementById("tree");
+
+  const AUTH = authGet();
+  if (!AUTH) {
+    gateEl.hidden = false;
+    appEl.hidden = true;
+  } else {
+    gateEl.hidden = true;
+    appEl.hidden = false;
+  }
 
   function initials(nom, prenom) {
     return ((prenom || "")[0] || "") .toUpperCase() + ((nom || "")[0] || "").toUpperCase();
@@ -240,16 +304,31 @@
       statusEl.textContent = "";
       return;
     }
+    const auth = authGet();
+    if (!auth) {
+      gateEl.hidden = false;
+      appEl.hidden = true;
+      return;
+    }
     statusEl.textContent = "Chargement...";
 
     try {
-      const res = await fetch(WEBHOOK_URL + "?magasin=" + encodeURIComponent(magasin), {
-        headers: { "x-api-key": API_KEY }
+      const res = await fetch(SECURE_READ_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: auth.token, source: "trombinoscope", params: { magasin: magasin } })
       });
-      if (!res.ok) throw new Error("reponse " + res.status);
-      const data = await res.json();
+      const j = await res.json().catch(function () { return null; });
+      if (!res.ok || !j || !j.ok) {
+        if (j && j.error === "session") {
+          gateEl.hidden = false;
+          appEl.hidden = true;
+          return;
+        }
+        throw new Error("reponse " + res.status);
+      }
       statusEl.textContent = "";
-      renderTree(data);
+      renderTree(j.resultat || {});
     } catch (err) {
       statusEl.className = "error";
       statusEl.textContent = "Impossible de charger le trombinoscope pour ce magasin. Reessayez plus tard.";
