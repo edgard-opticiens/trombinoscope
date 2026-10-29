@@ -274,7 +274,7 @@
     return authPost(N8N_AUTH_LOGIN, { role: role, magasin: magasin, code: code });
   }
 
-  const DIR_STORES = ["ANGO","BIARRO","BORDO","CAENPO","CHATO","CHEMILLO","CHOLO","DUNES","ECUME","EDGARD_DEVELOPPEMENT","EDGARD_DEV_SERVICE_COM","EDGARD_DEV_NANTES","FORMIO","GIRO","HAVRO","JISAM","LYONO","MANSO","MARAIS","MARSEILLO","MUDO","NANCEO","NANTO","NICEO","NIORTO","ORLO","REIMO","STRABO","TURO"];
+  const DIR_STORES = ["ANGO","BIARRO","BORDO","CAENPO","CHATO","CHEMILLO","CHOLO","DUNES","ECUME","EDGARD_DEVELOPPEMENT","EDGARD_DEV_SERVICE_COM","EDGARD_DEV_NANTES","EDGARD_DEV_TOURS","FORMIO","GIRO","HAVRO","JISAM","LYONO","MANSO","MARAIS","MARSEILLO","MUDO","NANCEO","NANTO","NICEO","NIORTO","ORLO","REIMO","STRABO","TURO"];
   const RH_VALUE = "__RH__";
 
   const gateEl = document.getElementById("gate");
@@ -346,6 +346,9 @@
         // qui n'a pas ce code), on retente avec le code "variables de paie", seul code que
         // possedent certaines entites (Edgard Dev / Edgard Dev Com / Edgard Dev Nantes).
         let j = await authLogin("COLLAB", choix, code);
+        if (!(j && j.ok) && !(j && j.error === "verrouille")) {
+          j = await authLogin("DIR", choix, code);
+        }
         if (!(j && j.ok) && !(j && j.error === "verrouille")) {
           j = await authLogin("VAR", choix, code);
         }
