@@ -73,6 +73,19 @@
     background: var(--border);
     margin: 0 auto;
   }
+  .service-block {
+    margin-bottom: 30px;
+  }
+  .service-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--brand);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
   .card {
     display: flex;
     flex-direction: column;
@@ -247,6 +260,13 @@
   const SECURE_READ_URL = "https://edgard-opticiens.app.n8n.cloud/webhook/secure-read";
   const N8N_AUTH_LOGIN = "https://edgard-opticiens.app.n8n.cloud/webhook/auth-login";
   const AUTH_KEY = "edgard_auth_v2";
+  // Edgard Developpement (siege) n'a pas de hierarchie manager/adjoint exploitable dans
+  // ETAT_COLLABORATEURS.xlsx : son trombinoscope reutilise donc la meme liste de services
+  // (Direction, Finance, Reseau, Sante Visuelle, Communication, Comptabilite, RH) que la
+  // page "Contacts - Fonctions support", pour rester identique entre les deux pages.
+  const CONTACTS_SUPPORT_URL = "https://edgard-opticiens.app.n8n.cloud/webhook/contacts-support";
+  const CONTACTS_SUPPORT_KEY = "Edgard37*";
+  const SERVICE_GROUPED_STORE = "EDGARD DEVELOPPEMENT";
 
   function authGet() {
     try {
@@ -402,6 +422,52 @@
     return card;
   }
 
+  function renderServices(services) {
+    treeEl.innerHTML = "";
+    if (!services || !services.length) {
+      statusEl.textContent = "Aucun collaborateur trouve pour ce magasin.";
+      return;
+    }
+    services.forEach(function (s) {
+      const block = document.createElement("div");
+      block.className = "service-block";
+
+      const title = document.createElement("div");
+      title.className = "service-title";
+      title.textContent = s.nom || "";
+      block.appendChild(title);
+
+      const row = document.createElement("div");
+      row.className = "level";
+      (s.gens || []).forEach(function (p) {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        let img;
+        if (p.photo) {
+          img = document.createElement("img");
+          img.className = "avatar";
+          img.src = p.photo;
+          img.alt = (p.prenom || "") + " " + (p.nom || "");
+        } else {
+          img = document.createElement("div");
+          img.className = "avatar placeholder";
+          img.textContent = initials(p.nom, p.prenom);
+        }
+        card.appendChild(img);
+
+        const name = document.createElement("div");
+        name.className = "name";
+        name.textContent = (p.prenom || "") + " " + (p.nom || "");
+        card.appendChild(name);
+
+        row.appendChild(card);
+      });
+      block.appendChild(row);
+      treeEl.appendChild(block);
+    });
+  }
+
   function buildLevels(employees) {
     const byManager = {};
     employees.forEach(function (p) {
@@ -463,6 +529,23 @@
       return;
     }
     statusEl.textContent = "Chargement...";
+
+    if (magasin === SERVICE_GROUPED_STORE) {
+      try {
+        const res = await fetch(CONTACTS_SUPPORT_URL, {
+          method: "GET",
+          headers: { "x-api-key": CONTACTS_SUPPORT_KEY }
+        });
+        const j = await res.json().catch(function () { return null; });
+        if (!res.ok || !j) throw new Error("reponse " + res.status);
+        statusEl.textContent = "";
+        renderServices(j.services || []);
+      } catch (err) {
+        statusEl.className = "error";
+        statusEl.textContent = "Impossible de charger le trombinoscope pour ce magasin. Reessayez plus tard.";
+      }
+      return;
+    }
 
     try {
       const res = await fetch(SECURE_READ_URL, {
